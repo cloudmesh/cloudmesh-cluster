@@ -15,7 +15,7 @@ class ClusterCommand(PluginCommand):
         ::
 
 		  Usage:
-				cluster create --provider=PROVIDER --deploy=FILE NAME
+				cluster create --service=SERVIE --provider=PROVIDER --deploy=FILE NAME
 				cluster add --name=LABEL NAME
 				cluster remove --name=LABEL OTHENAME
 				cluster deploy --name=LABEL FILE
@@ -32,9 +32,44 @@ class ClusterCommand(PluginCommand):
 			  FILE		Jobfile for given provider
 
 		  Options:
-			  --name    	specify name (WHAT NAME RENAME TO LABEL?)
-			  --provider	specify provider
-			  --deploy		specify application to deploy (jobfile)
+			  --name        specify name (WHAT NAME RENAME TO LABEL?)
+			  --provider    specify provider
+			  --deploy      specify application to deploy (jobfile)
+              --service     specify application to deploy (jobfile)
+
+          Description:
+
+                PLEASE REMOVE ALL TABS TABS IN YOUR MAN PAGE ARE NOT ALLOWED!!!!!!
+
+          		cluster create --service= SERVICE --provider=PROVIDER --deploy=FILE NAME
+
+          		    TBD
+
+				cluster add --name=LABEL NAME
+
+          		    TBD
+
+				cluster remove --name=LABEL OTHENAME
+
+          		    TBD
+
+				cluster deploy --name=LABEL FILE
+
+          		    TBD
+
+				cluster kill NAME
+
+          		    TBD
+
+				cluster list
+
+          		    TBD
+
+				cluster info NAME
+
+          		    TBD
+
+		  		cluster
 
         """
 
