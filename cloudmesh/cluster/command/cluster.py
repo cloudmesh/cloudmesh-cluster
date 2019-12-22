@@ -1,7 +1,6 @@
 from __future__ import print_function
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import PluginCommand
-from cloudmesh.cluster.api.manager import Manager
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import path_expand
 from pprint import pprint
@@ -15,32 +14,28 @@ class ClusterCommand(PluginCommand):
         """
         ::
 
-          Usage:
-                cluster --file=FILE
-                cluster list
+		  Usage:
+				cluster create --provider=PROVIDER --deploy=FILE NAME
+				cluster add --name=LABEL NAME
+				cluster remove --name=LABEL OTHENAME
+				cluster deploy --name=LABEL FILE
+				cluster kill NAME
+				cluster list
+				cluster info NAME
+		  		cluster
 
-          This command does some useful things.
+		  This command allows you to create and interact with an available cluster.
 
-          Arguments:
-              FILE   a file name
+		  Arguments:
+			  NAME   	A name/id of a cluster or machine
+			  PROVIDER	One of {Nomad, Kubernetes}
+			  FILE		Jobfile for given provider
 
-          Options:
-              -f      specify the file
+		  Options:
+			  --name    	specify name (WHAT NAME RENAME TO LABEL?)
+			  --provider	specify provider
+			  --deploy		specify application to deploy (jobfile)
 
         """
-        arguments.FILE = arguments['--file'] or None
 
         VERBOSE(arguments)
-
-        m = Manager()
-
-        if arguments.FILE:
-            print("option a")
-            m.list(path_expand(arguments.FILE))
-
-        elif arguments.list:
-            print("option b")
-            m.list("just calling list without parameter")
-
-        Console.error("This is just a sample")
-        return ""
