@@ -8,152 +8,122 @@ from cloudmesh.common.Shell import Shell
 import datetime
 import textwrap
 from cloudmesh.configuration.Config import Config
+from cloudmesh.mongo import DataBaseDecorator
+from cloudmesh.mongo.CmDatabase import CmDatabase
+
 
 class ClusterCommand(PluginCommand):
 
-    # noinspection PyUnusedLocal
-    @command
-    def do_cluster(self, args, arguments):
-        """
-        ::
+	# noinspection PyUnusedLocal
+	@command
+	def do_cluster(self, args, arguments):
+		"""
+		::
 
 		  Usage:
-				cluster create --service=SERVIE --provider=PROVIDER --deploy=FILE NAME --n=N
-				cluster add --name=LABEL NAME
-				cluster remove --name=LABEL OTHENAME
-				cluster deploy --name=LABEL FILE
-				cluster kill NAME
-				cluster list
-				cluster info NAME
-		  		cluster
+			  cluster build --id="[ID]" LABEL
+			  cluster create --cloud=CLOUD --n=N LABEL
+			  cluster add --id="[ID]" --all LABEL
+			  cluster remove --id="[ID]" --all LABEL
+			  cluster terminate --all LABEL
+			  cluster info --all --verbose=V LABEL
 
-		  This command allows you to create and interact with an available cluster.
+		  This command allows you to create and interact with an available cluster of machines.
 
 		  Arguments:
-			  NAME   	A name/id of a cluster or machine
-			  PROVIDER	One of {Nomad, Kubernetes}
-			  FILE		Jobfile for given provider
-
+		  	  ID		An existing machine ID to be reserved for the cluster.
+			  LABEL		The label for the cluster.
+			  CLOUD		Cloud platform to initialize VMs.
+			  N			Number of instances to request.
+			  V			Verbosity level.
+			  
 		  Options:
-			  --name        specify name (WHAT NAME RENAME TO LABEL?)
-			  --provider    specify provider
-			  --deploy      specify application to deploy (jobfile)
-              --service     specify hadoop or nomad ....
+			  --id      Specify string containing list of IDs, comma delimited format "id1,id2,...,idx".
+			  --cloud	Specify cloud platform {AWS, Azure, Openstack}.
+			  --n		Specify number of VMs to initialize.
+			  --all		OPTIONAL.  Overrides --id, will pass all machines as an argument.
+			  --verbose OPTIONAL.  Provides verbosity level for info.
 
-          Description:
+		  Description:
 
-                PLEASE REMOVE ALL TABS TABS IN YOUR MAN PAGE ARE NOT ALLOWED!!!!!!
+			  cluster build --id="ID,.." --all LABEL
 
-          		cluster create --service= SERVICE --provider=PROVIDER --deploy=FILE NAME
+				  Groups together existing machines and reserves them for cluster use.  Pass a comma-delimited list of machine ID's as a string.
+				  Pass --all to associate all available machines to cluster.
+				  
+			  cluster create --cloud=CLOUD --n=N LABEL
+				  
+				  Automatically requests VMs from the cloud service requested.
+			  
+			  cluster add --id="[ID]" --all LABEL
 
-          		    TBD
+				  Adds given machine IDs to cluster.  Pass --all to associate all available machines to cluster.
 
-				cluster add --name=LABEL NAME
+			  cluster remove --id="[ID]" LABEL
+			
+				  Removes given machine IDs from cluster.  Pass --all to disassociate all machines from cluster.
 
-          		    TBD
+			  cluster terminate --all LABEL
 
-				cluster remove --name=LABEL OTHENAME
+			  	  Terminates all instances associated with the cluster, wipes cluster data.  If --all is passed, terminates all running clusters.
 
-          		    TBD
+			  cluster info --all LABEL
 
-				cluster deploy --name=LABEL FILE
+			  	  Retrieves cluster data and machine data associatred with cluster.  Verbosity level 1 provides high-level cluster information
+				  and list of machines associated.  Verbosity level 2 provides cluster information, machine information and status.  Verbosity 
+				  level 3 provides all available information.
 
-          		    TBD
+		"""
 
-				cluster kill NAME
+		VERBOSE(arguments)
 
-          		    TBD
+		map_parameters(arguments,
+					   'id',
+					   'label',
+					   'cloud',
+					   'n',
+					   'v'
+					   )
 
-				cluster list
+		clusters = {}
 
-          		    TBD
+		config = Config()
+		user = config["cloudmesh.profile.user"]
 
-				cluster info NAME
+		cmdb = CmDatabase()
+		cmdb.connect()
 
-          		    TBD
+		vm_boot = textwrap.dedent(
+			f"""
+			cms vm boot \
+				--name={user}-{arguments.cloud}[0-{arguments.n}] \
+				--output=json
+			"""
+		)
 
-		  		cluster
+		# Prepare machine id's to interact
+		machine_ids = arguments.id or []
+		if arguments.all:
+			machine_ids = Shell("cms inventory lists --format=dict")
+			
 
-        """
+		if arguments.build:
+			# Builds and stores a cluster connected to existing machine ids
+			assert arguments.label
+			assert arguments.id or arguments.all
 
-        VERBOSE(arguments)
-
-        map_parameters(arguments,
-                       'name',
-                       'provider',
-                       'deploy',
-                       'n'
-                       )
-
-        clusters = {}
-
-        # can not have /bin/bash
-        # nuste read anme from yaml
-        # must use dedent
-
-        config = Config()
-        user = config["cloudmehs.profile.user"]
-
-        vm_boot = textwrap.dedent(
-            f"""
-            cms vm boot \
-                --name={user}-{arguments.service} \
-                --output=json \
-                --n={arguments.n}
-		    """
-        )
-
-        if arguments.create:
-
-            name = arguments.NAME
-
-            Console.info(f"Creating cluster {name}...")
-
-            # BUG: Please use DateTime from cloudmesh to gurantee uniform tiemstamps
-            clusters[name] = {
-                'created_at': datetime.datetime.now().strftime(
-                    "%Y-%m-%D %H:%M:%S"),
-                'machines': []
-            }
-            VERBOSE(clusters)
+			clusters['label'] = {machine_id:Shell("cms vm status {0}".format(machine_id)) for machine_id in machine_ids}
+			cmdb.UPDATE(clusters) ## Revise to update to correct mongo create/update
 
 
-        elif arguments.add:
-
-            Console.info(
-                f"Adding {arguments.NAME} from {arguments.name}")
-            # msg is unclear e.g what is from
-
-            cluster_name = arguments.name
-            machine_name = arguments.NAME
-
-            if cluster_name not in clusters.keys():
-                VERBOSE(clusters)
-                raise ValueError(
-                    f"{cluster_name} doesn't exist. Create cluster with cms cluster create.")
-
-            if machine_name in clusters[cluster_name]['machines']:
-                VERBOSE(clusters)
-                raise ValueError(f"{machine_name} already in {cluster_name}")
-
-            clusters[cluster_name]['machines'].append(machine_name)
-            VERBOSE(f"Successfully added {machine_name} to {cluster_name}.")
-
-        elif arguments.remove:
-            Console.info(
-                f"Attempting to remove {arguments.NAME} from {arguments.name}")
-
-        elif arguments.deploy:
-            Console.info(
-                f"Attempting to deploy {arguments.FILE} from {arguments.name}")
-
-        elif arguments.kill:
-            Console.info(f"Attempting to kill {arguments.NAME}")
-            Shell()
-        elif arguments.list:
-            VERBOSE(clusters)
-
-        elif arguments.info:
-            Console.info(f"Retriving info for cluster {arguments.NAME}")
-
-        return ""
+		if arguments.create:
+			pass
+		elif arguments.add:
+			pass
+		elif arguments.remove:
+			pass
+		elif arguments.terminate:
+			pass
+		elif arguments.info:
+			pass
+		return ""
