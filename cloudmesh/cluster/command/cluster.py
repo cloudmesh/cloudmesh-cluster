@@ -109,8 +109,7 @@ class ClusterCommand(PluginCommand):
 
 		if arguments.create:
 			n, label, cloud = arguments.n, arguments.label, arguments.cloud
-			s = Shell()
-			s.
+			
 			(textwrap.dedent("""cms vm boot --n={0} \
 						--name={1}_[0-{0}]	 \
 						--cloud={2}""".format(n, label, cloud)))
