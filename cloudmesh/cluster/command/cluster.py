@@ -23,12 +23,12 @@ class ClusterCommand(PluginCommand):
 
 		Usage:
 			cluster test
-			cluster build --id="[ID]" LABEL
+			cluster build --id=ID LABEL
 			cluster create --cloud=CLOUD --n=N LABEL
 			cluster add --id="[ID]" --all LABEL
 			cluster remove --id="[ID]" --all LABEL
 			cluster terminate --all LABEL
-			cluster info --all --verbose=V LABEL
+			cluster info [--verbose=V] [LABEL]
 
 		This command allows you to create and interact with an available cluster of machines.
 
@@ -48,7 +48,7 @@ class ClusterCommand(PluginCommand):
 
 		Description:
 
-			cluster build --id="[ID]" --all LABEL
+			cluster build --id=ID LABEL
 
 				Groups together existing machines and reserves them for cluster use.  Pass a comma-delimited list of machine ID's as a string.
 				Pass --all to associate all available machines to cluster.
@@ -69,18 +69,14 @@ class ClusterCommand(PluginCommand):
 
 				Terminates all instances associated with the cluster, wipes cluster data.  If --all is passed, terminates all running clusters.
 
-			cluster info --all --verbose=v LABEL
+			cluster info --all --verbose=v [LABEL]
 
 				Retrieves cluster data and machine data associatred with cluster.  Verbosity level 1 provides high-level cluster information
 				and list of machines associated.  Verbosity level 2 provides cluster information, machine information and status.  Verbosity 
 				level 3 provides all available information.
 
 		"""
-
-		VERBOSE(arguments)
-
 		map_parameters(arguments,
-					'test',
 					'id',
 					'label',
 					'cloud',
@@ -89,43 +85,67 @@ class ClusterCommand(PluginCommand):
 					'all',
 					'verbose'
 					)
-		inv = Inventory()
-		inv.read()
+
+		# inv = Inventory()
+		# inv.read()
 
 		config = Config()
 		user = config["cloudmesh.profile.user"]
+		s = Shell()
+		cmdb = CmDatabase()
 
-		# cmdb = CmDatabase()
-		# cmdb.connect()
-
-		# Prepare machine id's to interact
-		machine_ids = arguments.id or []
-		
+		if arguments.test:
+			cmdb = CmDatabase()
+			virtual_clusters = cmdb.collection("cluster-virtual")
+			print(*[index for index in virtual_clusters.list_indexes()])
+			
 		if arguments.build:
+			ids, label = arguments.id, arguments.LABEL
+
 			# Builds and stores a cluster connected to existing machine ids
-			pass
+			machines = ids.split(",")
+			cluster_machines = []
+			for i, machine in enumerate(machines):
+				cluster_machines.append({
+					f"{machine}_{i}": {
+						"type": "cloud",
+						"cloud": None,
+						"status": "available",
+						"deployment": None
+					}
+				})
+			print(f"Adding the following machines to cluster-cloud {label}: ")
+			VERBOSE(cluster_machines)
+			collection = cmdb.collection("cluster-cloud")
+			collection.insert_one({label: cluster_machines})
+
 		# # TODO Revise to update to correct mongo create/update
 		# cmdb.UPDATE(clusters)
 
 		if arguments.create:
 			n, label, cloud = arguments.n, arguments.label, arguments.cloud
-			
-			(textwrap.dedent("""cms vm boot --n={0} \
-						--name={1}_[0-{0}]	 \
-						--cloud={2}""".format(n, label, cloud)))
-
-			Shell("""cms vm ip inventory {0}[0-{1}]""".format(label, n))
+			ids = [f"label_{i}" for i in range(n)].join(",")
+			starting = [s.run(f"cms vm boot --name={id} --cloud={cloud}") for id in ids]
+			s.run(f"cms cluster build --id={ids} {label}")
+			print(f"Starting {starting}")
 
 		elif arguments.add:
 			pass
+
 		elif arguments.remove:
 			pass
+
 		elif arguments.terminate:
 			pass
-		elif arguments.info:
-			pass
 
-		
-		print(inv.list())
-		#inv.save()
+		elif arguments.info:
+			v, label = arguments.verbose or arguments.v or None, arguments.LABEL or None
+			if label: print(f"Searching for {label}")
+			virtual_clusters, cloud_clusters = cmdb.collection("cluster-virtual"), cmdb.collection("cluster-cloud")
+			output = {
+				'virtual': [i for i in virtual_clusters.find(label)],
+				'cloud': [i for i in cloud_clusters.find(label)]
+			}
+
+			print(output)
 		return ""
