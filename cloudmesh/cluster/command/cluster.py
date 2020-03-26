@@ -18,10 +18,6 @@ class ClusterCommand(PluginCommand):
     # noinspection PyUnusedLocal
     @command
     def do_cluster(self, args, arguments):
-
-
-
-
         """
         ::
 
@@ -84,41 +80,37 @@ class ClusterCommand(PluginCommand):
 
             cluster build --id=ID LABEL
 
-                    Groups together existing machines and reserves
-                    them for cluster use.  Pass a comma-delimited
-                    list of machine ID's as a string. Pass --all to
-                    associate all available machines to cluster.
+                Groups together existing machines and reserves them for cluster
+                use.  Pass a comma-delimited list of machine ID's as a string.
+                Pass --all to associate all available machines to cluster.
 
             cluster create --cloud=CLOUD --n=N LABEL
 
-                    Automatically requests VMs from the cloud
-                    service requested.
+                Automatically requests VMs from the cloud service requested.
 
             cluster add --id="[ID]" --all LABEL
 
-                    Adds given machine IDs to cluster.  Pass --all
-                    to associate all available machines to cluster.
+                Adds given machine IDs to cluster.  Pass --all
+                to associate all available machines to cluster.
 
             cluster remove --id="[ID]" LABEL
 
-                    Removes given machine IDs from cluster.  Pass
-                    --all to disassociate all machines from cluster.
+                Removes given machine IDs from cluster.  Pass
+                --all to disassociate all machines from cluster.
 
             cluster terminate --all LABEL
 
-                    Terminates all instances associated with the
-                    cluster, wipes cluster data.  If --all is
-                    passed, terminates all running clusters.
+                Terminates all instances associated with the cluster, wipes
+                cluster data.  If --all is passed, terminates all running
+                clusters.
 
             cluster info --all --verbose=v [LABEL]
 
-                    Retrieves cluster data and machine data
-                    associatred with cluster.  Verbosity level 1
-                    provides high-level cluster information and list
-                    of machines associated.  Verbosity level 2
-                    provides cluster information, machine
-                    information and status. Verbosity level 3
-                    provides all available information.
+                Retrieves cluster data and machine data associatred with
+                cluster.  Verbosity level 1 provides high-level cluster
+                information and list of machines associated.  Verbosity level 2
+                provides cluster information, machine information and status.
+                Verbosity level 3 provides all available information.
 
         """
         map_parameters(arguments,
