@@ -4,6 +4,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import path_expand
 from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.Shell import Shell
 import datetime
 import textwrap
@@ -140,7 +141,7 @@ class ClusterCommand(PluginCommand):
             ids, label = arguments.id, arguments.LABEL
 
             # Builds and stores a cluster connected to existing machine ids
-            machines = ids.split(",")
+            machines = Parameter.expand(arguments.vms)
             cluster_machines = []
             for i, machine in enumerate(machines):
                 cluster_machines.append({
