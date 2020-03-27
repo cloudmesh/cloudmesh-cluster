@@ -1,3 +1,6 @@
+from cloudmesh.mongo.CmDatabase import CmDatabase
+from cloudmesh.compute.vm.Provider import Provider
+
 class Cluster:
     """
     cluster test
@@ -11,17 +14,21 @@ class Cluster:
 
     # DO NOT USE TABLE PRINTER HERE, just get dicts
 
-    def __init__(self):
-        pass
+    def __init__(self, printer=print):
+        self.printer = printer
+        self.db = CmDatabase()
+        try:
+            self.db.connect()
+        except:
+            self.printer("Can't connect to database.")
+
+        self.provider = Provider()
 
     def test(self):
         raise NotImplementedError
 
-    def build(self, id=None, label=None):
-        raise NotImplementedError
-
-    def create(self, cloud=None, n=None, label=None):
-        raise NotImplementedError
+    def create(self, label, vms=None, cloud=None, n=None):
+        pass
 
     def add(self, id=None, available=None, label=None):
         raise NotImplementedError
@@ -34,3 +41,31 @@ class Cluster:
 
     def info(self, verbose=None, label=None):
         raise NotImplementedError
+    
+    def _boot_vm(self, **kwargs):
+        self.provider.create(**kwargs)
+
+    def _create_document(self, label, payload):
+        """
+        Creates a document attached to a specific cluster
+        """
+        doc = {label:payload}
+        return doc
+
+    def _update_document(self, label, payload):
+        """
+        Modifies an existing cluster document.
+        """
+        pass
+
+    def _load_document(self, label):
+        """
+        Finds a cluster document.
+        """
+        pass
+
+    def _delete_document(self, label):
+        """
+        Deletes cluster document.
+        """
+        pass

@@ -29,25 +29,23 @@ class ClusterCommand(PluginCommand):
             cluster add [LABEL] --vms=NAMES...
             cluster remove [LABEL] --vms=NAMES...
             cluster terminate [LABEL] [--vms=NAMES...]
-            cluster info [LABEL] [--verbose]
+            cluster terminate [LABEL] [--kill]
 
           This command allows you to create and interact with an available
           cluster of machines.
 
           Arguments:
-            ID      An existing machine ID to be reserved for the cluster.
+            NAMES   Machine names to be added to the cluster.
             LABEL   The label for the cluster.
             CLOUD   Cloud platform to initialize VMs.
             N       Number of instances to request [default: 5]
             V       Verbosity level.
 
           Options:
-            --id       Specify string containing list of IDs, comma delimited
-                       format "id1,id2,...,idx".
+            --vms      List of VM names.
             --cloud    Specify cloud platform {AWS, Azure, Openstack}.
-            --n                Specify number of VMs to initialize.
-            --all      OPTIONAL.  Overrides --id, will pass all machines as
-                       an argument.
+            --n        Specify number of VMs to initialize.
+            --kill     Terminates all VMs associated with the cluster.
             --verbose  OPTIONAL.  Provides verbosity level for info.
 
           Description:
@@ -79,33 +77,25 @@ class ClusterCommand(PluginCommand):
 
           Description:
 
-            cluster build --id=ID LABEL
+            cluster create LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
 
-                Groups together existing machines and reserves them for cluster
-                use.  Pass a comma-delimited list of machine ID's as a string.
-                Pass --all to associate all available machines to cluster.
+                Groups VMs into a cluster named LABEL.  If n, cloud are
+                specified, then VMs will be booted and added to cluster.
 
-            cluster create --cloud=CLOUD --n=N LABEL
+            cluster add [LABEL] --vms=NAMES...
 
-                Automatically requests VMs from the cloud service requested.
+                Adds list of VMs to cluster given their names.
 
-            cluster add --id="[ID]" --all LABEL
+            cluster remove [LABEL] --vms=NAMES...
 
-                Adds given machine IDs to cluster.  Pass --all
-                to associate all available machines to cluster.
+                Removes list of VMs to cluster given their names.
 
-            cluster remove --id="[ID]" LABEL
-
-                Removes given machine IDs from cluster.  Pass
-                --all to disassociate all machines from cluster.
-
-            cluster terminate --all LABEL
+            cluster terminate [LABEL] [--kill]
 
                 Terminates all instances associated with the cluster, wipes
-                cluster data.  If --all is passed, terminates all running
-                clusters.
+                cluster data. If --kill is passed, kills all related VMs.
 
-            cluster info --all --verbose=v [LABEL]
+            cluster info [LABEL] [--verbose]
 
                 Retrieves cluster data and machine data associatred with
                 cluster.  Verbosity level 1 provides high-level cluster
