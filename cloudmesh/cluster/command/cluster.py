@@ -24,56 +24,26 @@ class ClusterCommand(PluginCommand):
 
           Usage:
             cluster test
-            cluster create LABEL [--vms=NAMES... | --n=N]
-                           [--cloud=CLOUD]
-            cluster add [LABEL] --vms=NAMES...
-            cluster remove [LABEL] --vms=NAMES...
-            cluster terminate [LABEL] [--vms=NAMES...]
-            cluster terminate [LABEL] [--kill]
+            cluster create LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
+            cluster (add|remove) LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
+            cluster terminate LABEL [--kill]
+            cluster info LABEL [--verbose=V]
 
           This command allows you to create and interact with an available
           cluster of machines.
 
           Arguments:
-            NAMES   Machine names to be added to the cluster.
-            LABEL   The label for the cluster.
-            CLOUD   Cloud platform to initialize VMs.
-            N       Number of instances to request [default: 5]
-            V       Verbosity level.
+            NAMES  Machine names to be added to the cluster.
+            LABEL  The label for the cluster.
+            CLOUD  Cloud platform to initialize VMs.
+            N      Number of instances to request [default: 5]
+            V      Verbosity level.
 
           Options:
-            --vms      List of VM names.
             --cloud    Specify cloud platform {AWS, Azure, Openstack}.
             --n        Specify number of VMs to initialize.
-            --kill     Terminates all VMs associated with the cluster.
-            --verbose  OPTIONAL.  Provides verbosity level for info.
+            --verbose  Returns information as per verbosity level.
 
-          Description:
-
-            create:
-
-                if vms are specified use them
-
-                if -N is used create new vms and add them the the label
-                cluster
-
-                cloudmehs has a cm.group make it cm.gourp=LABEL
-                when you start a vm
-
-
-            add:
-
-                adds the named vpma use Parameter.expand(arguments,vm)
-
-
-            remoiv terminate:
-
-                same as add
-
-
-          info:
-
-            cool output with Printer.write
 
           Description:
 
@@ -82,35 +52,32 @@ class ClusterCommand(PluginCommand):
                 Groups VMs into a cluster named LABEL.  If n, cloud are
                 specified, then VMs will be booted and added to cluster.
 
-            cluster add [LABEL] --vms=NAMES...
+            cluster (add|remove) LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
 
-                Adds list of VMs to cluster given their names.
+                Add or remove VMs from a cluster.  Active sessions on the VM
+                will not be modified.  In order to start VMs, pass the number
+                of requested machines to --n.
 
-            cluster remove [LABEL] --vms=NAMES...
+            cluster terminate LABEL [--kill]
 
-                Removes list of VMs to cluster given their names.
-
-            cluster terminate [LABEL] [--kill]
-
-                Terminates all instances associated with the cluster, wipes
-                cluster data. If --kill is passed, kills all related VMs.
+                Wipe cluster data and terminate all active deployments to the cluster.
+                If --kill is passed, then terminates all VMs through Provider class.
 
             cluster info [LABEL] [--verbose]
 
-                Retrieves cluster data and machine data associatred with
+                Retrieves cluster data and machine data associated with
                 cluster.  Verbosity level 1 provides high-level cluster
                 information and list of machines associated.  Verbosity level 2
                 provides cluster information, machine information and status.
                 Verbosity level 3 provides all available information.
 
         """
+        print(arguments)
         map_parameters(arguments,
-                       'id',
-                       'label',
+                       'vms',
                        'cloud',
                        'n',
-                       'v',
-                       'all',
+                       'kill',
                        'verbose'
                        )
 

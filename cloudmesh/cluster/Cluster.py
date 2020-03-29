@@ -1,4 +1,5 @@
 from cloudmesh.mongo.CmDatabase import CmDatabase
+from cloudmesh.mongo.DataBaseDecorator import DatabaseUpdate, DatabaseAlter, DatabaseImportAsJson
 from cloudmesh.compute.vm.Provider import Provider
 
 class Cluster:
@@ -28,7 +29,8 @@ class Cluster:
         raise NotImplementedError
 
     def create(self, label, vms=None, cloud=None, n=None):
-        pass
+        # create a document attached to cluster label
+		pass
 
     def add(self, id=None, available=None, label=None):
         raise NotImplementedError
@@ -45,13 +47,20 @@ class Cluster:
     def _boot_vm(self, **kwargs):
         self.provider.create(**kwargs)
 
+	@DatabaseUpdate
     def _create_document(self, label, payload):
         """
         Creates a document attached to a specific cluster
         """
         doc = {label:payload}
+		"""
+		TODO
+		What are the headers needed for DatabaseUpdate to attach to the collection needed?
+		"""
+		headers = {}
         return doc
 
+	@DatabaseUpdate
     def _update_document(self, label, payload):
         """
         Modifies an existing cluster document.
@@ -64,6 +73,7 @@ class Cluster:
         """
         pass
 
+	@DatabaseUpdate
     def _delete_document(self, label):
         """
         Deletes cluster document.
