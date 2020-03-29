@@ -56,6 +56,6 @@ Retrieves cluster data and machine data associated with cluster.  Verbosity leve
 
 # Features
 
-- Supports hybrid cloud clusters
-- Allows for inventory of instances and deployments
-- Abstraction in `cloudmesh.cluster.Cluster` allows for added integrations
+* Supports hybrid cloud clusters
+* Allows for inventory of instances and deployments
+* Abstraction in `cloudmesh.cluster.Cluster` allows for added integrations
