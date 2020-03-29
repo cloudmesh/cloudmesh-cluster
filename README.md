@@ -42,29 +42,21 @@ V      - Verbosity level.
 
 ## Description:
 
-`cluster create LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]`
-
-    Groups VMs into a cluster named LABEL.  If n, cloud are
-    specified, then VMs will be booted and added to cluster.
+`cluster create LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]`  
+    
+    Groups VMs into a cluster named LABEL.  If n, cloud are specified, then VMs will be booted and added to cluster.
 
 `cluster (add|remove) LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]`
 
-    Add or remove VMs from a cluster.  Active sessions on the VM
-    will not be modified.  In order to start VMs, pass the number
-    of requested machines to --n.
+    Add or remove VMs from a cluster.  Active sessions on the VM will not be modified.  In order to start VMs, pass the number of requested machines to --n.
 
 `cluster terminate LABEL [--kill]`
 
-    Wipe cluster data and terminate all active deployments to the cluster.
-    If --kill is passed, then terminates all VMs through Provider class.
+    Wipe cluster data and terminate all active deployments to the cluster. If --kill is passed, then terminates all VMs through Provider class.
 
 `cluster info [LABEL] [--verbose]`
 
-    Retrieves cluster data and machine data associated with
-    cluster.  Verbosity level 1 provides high-level cluster
-    information and list of machines associated.  Verbosity level 2
-    provides cluster information, machine information and status.
-    Verbosity level 3 provides all available information.
+    Retrieves cluster data and machine data associated with cluster.  Verbosity level 1 provides high-level cluster information and list of machines.  Verbosity level 2 provides cluster information, machine information and status. Verbosity level 3 provides all available information.
 
 # Features
 
