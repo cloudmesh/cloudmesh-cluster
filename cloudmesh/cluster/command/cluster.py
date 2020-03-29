@@ -1,18 +1,18 @@
 from __future__ import print_function
+from pprint import pprint
+import datetime
+import textwrap
+from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.Shell import Shell
 from cloudmesh.shell.command import command, map_parameters, PluginCommand
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import path_expand
-from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
-from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.Shell import Shell
-import datetime
-import textwrap
-from cloudmesh.configuration.Config import Config
-from cloudmesh.mongo import DataBaseDecorator
+
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.mongo.CmDatabase import CmDatabase
-
+from cloudmesh.common.Printer import Printer
+from cloudmesh.cluster.Cluster import Cluster
 
 class ClusterCommand(PluginCommand):
 
@@ -24,8 +24,8 @@ class ClusterCommand(PluginCommand):
 
           Usage:
             cluster test
-            cluster create LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
-            cluster (add|remove) LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
+            cluster create LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
+            cluster (add|remove) LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
             cluster terminate LABEL [--kill]
             cluster info LABEL [--verbose=V]
 
@@ -78,52 +78,22 @@ class ClusterCommand(PluginCommand):
                        'cloud',
                        'n',
                        'kill',
-                       'verbose'
-                       )
-
-        # inv = Inventory()
-        # inv.read()
+                       'verbose')
 
         config = Config()
-        user = config["cloudmesh.profile.user"]
-
+        inv = Inventory()
         cmdb = CmDatabase()
-
-        if arguments.test:
-            cmdb = CmDatabase()
-            virtual_clusters = cmdb.collection("cluster-virtual")
-            print(*[index for index in virtual_clusters.list_indexes()])
-
-        if arguments.build:
-            ids, label = arguments.id, arguments.LABEL
-
-            # Builds and stores a cluster connected to existing machine ids
-            machines = Parameter.expand(arguments.vms)
-            cluster_machines = []
-            for i, machine in enumerate(machines):
-                cluster_machines.append({
-                    f"{machine}_{i}": {
-                        "type": "cloud",
-                        "cloud": None,
-                        "status": "available",
-                        "deployment": None
-                    }
-                })
-            print(f"Adding the following machines to cluster-cloud {label}: ")
-            VERBOSE(cluster_machines)
-            collection = cmdb.collection("cluster-cloud")
-            collection.insert_one({label: cluster_machines})
-
-        # # TODO Revise to update to correct mongo create/update
-        # cmdb.UPDATE(clusters)
+        cluster = Cluster(print=Printer.write)
 
         if arguments.create:
-            n, label, cloud = arguments.n, arguments.label, arguments.cloud
-            ids = [f"label_{i}" for i in range(n)].join(",")
-            starting = [s.run(f"cms vm boot --name={id} --cloud={cloud}") for id
-                        in ids]
-            s.run(f"cms cluster build --id={ids} {label}")
-            print(f"Starting {starting}")
+            kwargs = {
+                'label': arguments.LABEL,
+                'vms', arguments.vms or None,
+                'cloud', arguments.cloud or None,
+                'n', int(arguments.n) or None
+            }
+            cluster.create(**kwargs)
+            print(cluster.document)
 
         elif arguments.add:
             pass
