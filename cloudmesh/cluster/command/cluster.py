@@ -23,7 +23,6 @@ class ClusterCommand(PluginCommand):
         ::
 
           Usage:
-            cluster test
             cluster create LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
             cluster (add|remove) LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
             cluster terminate LABEL [--kill]
@@ -88,9 +87,9 @@ class ClusterCommand(PluginCommand):
         if arguments.create:
             kwargs = {
                 'label': arguments.LABEL,
-                'vms', arguments.vms or None,
-                'cloud', arguments.cloud or None,
-                'n', int(arguments.n) or None
+                'vms': arguments.vms or None,
+                'cloud': arguments.cloud or None,
+                'n': int(arguments.n) or None
             }
             cluster.create(**kwargs)
             print(cluster.document)

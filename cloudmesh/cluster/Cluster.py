@@ -13,17 +13,38 @@ class Cluster:
     cluster info [verbose=V] [LABEL]
     """
 
-    _default_headers = {
-        "collection": "clusters",
+    """
+    The 'cm' object manages all properties required by cloudmesh.
+    The collection used natively by this class is "cluster-native",
+    meaning a cluster that is natively managed by cloudmesh.  Cluster
+    managers such as kubernetes may be built on top of this class,
+    however should use a collection "cluster-k8"/"cluster-k3", etc.
+    Virtualized clusters can be stored in "cluster-virtual".
+    The 'status' field should signify the availability of the cluster
+    for deployments.  
+    TODO signify a distinct field for unused vms that can be reappropriated
+    for dynamic vm management
+
+    """
+    _default = {
+        "name": "TBD",
+        "cm": {
+            "kind": "cluster",
+            "driver": None,
+            "cloud": None,
+            "name": "TBD",
+            "updated": "TBD",
+            "created": "TBD",
+            "status": "available",
+            "label": "TBD",
+            "group": "cloudmesh",
+            "collection": "cluster-native",
+            "modified": "TBD",           
+            "creation": 0
+        }
     }
 
-    document = {
-        "label": None,
-        "count": 0,
-        "vms": []
-    }
-
-    def __init__(self, printer=print, config=None):
+    def __init__(self, printer=print):
         self.printer = printer
         self.db = CmDatabase()
         try:
@@ -32,28 +53,8 @@ class Cluster:
             self.printer("Can't connect to database.")
 
         self.provider = Provider()
-    
-    def load(self, label):
-        self.document(self.db.find(collection=self._default_headers['collection'], query=label))
 
-    @property
-    def document(self, refresh=False):
-        """
-        Loads document from database and updates class variable 'document'
-        """
-        if refresh: self.load(self.document['label'])
-        return self.document
-
-    @DatabaseUpdate
-    @property.setter
-    def document(self, document=None, **kwargs):
-        """
-        Updates document with given parameters, synced to db.
-        Still untested
-        """
-        self.document = document.update(self._default_headers)
-        return self.document
-
+        
     def create(self, label, vms=[], n=None, cloud=None):
         # create a document attached to cluster label
         active_doc = self.document()
@@ -97,7 +98,7 @@ class Cluster:
         # test_0, test_1, test_2, where the second set fail to create
         self.provider.create(**kwargs)
 
-    @DatabaseUpdate
+    #@DatabaseUpdate
     def _create_document(self):
         """
         Creates a document attached to a specific cluster
@@ -110,7 +111,7 @@ class Cluster:
         headers = {}
         return doc
 
-    @DatabaseUpdate
+    #@DatabaseUpdate
     def _update_document(self):
         """
         Modifies an existing cluster document.
@@ -123,7 +124,7 @@ class Cluster:
         """
         pass
 
-    @DatabaseUpdate
+    #@DatabaseUpdate
     def _delete_document(self, label):
         """
         Deletes cluster document.
