@@ -93,9 +93,14 @@ class Cluster:
         raise NotImplementedError
     
     def _boot_vm(self, **kwargs):
-        # TODO provide implementation for naming vms where a vm already exists in the format LABEL_i
-        # ex: if cms cluster create --n=3 TEST is run twice, it should not produce two sets of vms 
-        # test_0, test_1, test_2, where the second set fail to create
+
+        # TODO provide implementation for naming vms where a vm already exists
+        # in the format LABEL_i
+
+        # ex: if cms cluster create --n=3 TEST is run twice, it should not
+        # produce two sets of vms test_0, test_1, test_2, where the second set
+        # fail to create
+
         self.provider.create(**kwargs)
 
     #@DatabaseUpdate
@@ -106,7 +111,10 @@ class Cluster:
         doc = {label:payload}
         """
         TODO
-        What are the headers needed for DatabaseUpdate to attach to the collection needed?
+        
+        What are the headers needed for DatabaseUpdate to attach to the
+        collection needed?
+        
         """
         headers = {}
         return doc
