@@ -25,8 +25,8 @@ class ClusterCommand(PluginCommand):
         ::
 
           Usage:
-            cluster create LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
-            cluster (add|remove) LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
+            cluster create LABEL (--vms=NAMES | --n=N) [--cloud=CLOUD]
+            cluster (add|remove) LABEL (--vms=NAMES | --n=N) [--cloud=CLOUD]
             cluster terminate LABEL [--kill]
             cluster info LABEL
 
@@ -34,23 +34,22 @@ class ClusterCommand(PluginCommand):
           cluster of machines.
 
           Arguments:
-            NAMES  Machine names to be added to the cluster.
             LABEL  The label for the cluster.
-            CLOUD  Cloud platform to initialize VMs.
-            V      Verbosity level.
 
           Options:
-            --cloud=CLOUD  Specify cloud platform {AWS, Azure, Openstack}.
+            --cloud=CLOUD  Specify cloud platform such as AWS, Azure, Openstack.
             --n=N          Specify number of VMs to initialize.
+            --vms=NAMES    Machine names to be added to the cluster.
+            --kill         TODO: not descripbed what it does
 
           Description:
 
-            cluster create LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
+            cluster create LABEL [--vms=NAMES | --n=N] [--cloud=CLOUD]
 
                 Groups VMs into a cluster named LABEL.  If n, cloud are
                 specified, then VMs will be booted and added to cluster.
 
-            cluster (add|remove) LABEL [--vms=NAMES... | --n=N] [--cloud=CLOUD]
+            cluster (add|remove) LABEL [--vms=NAMES | --n=N] [--cloud=CLOUD]
 
                 Add or remove VMs from a cluster.  Active sessions on the VM
                 will not be modified.  In order to start VMs, pass the number
@@ -58,10 +57,11 @@ class ClusterCommand(PluginCommand):
 
             cluster terminate LABEL [--kill]
 
-                Wipe cluster data and terminate all active deployments to the cluster.
-                If --kill is passed, then terminates all VMs through Provider class.
+                Wipe cluster data and terminate all active deployments to the
+                cluster. If --kill is passed, then terminates all VMs through
+                Provider class.
 
-            cluster info [LABEL] [--verbose]
+            cluster info [LABEL]
 
                 Retrieves cluster data and machine data associated with
                 cluster.  Verbosity level 1 provides high-level cluster
@@ -86,7 +86,7 @@ class ClusterCommand(PluginCommand):
         if arguments.create:
             kwargs = {
                 'label': arguments.LABEL,
-                'vms': arguments.vms or None,
+                'vms': Parameter.expand(arguments.vms) or None,
                 'cloud': arguments.cloud or None,
                 'n': int(arguments.n) or None
             }
