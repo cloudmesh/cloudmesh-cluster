@@ -45,6 +45,10 @@ class Cluster:
     }
 
     def __init__(self, printer=print):
+        """
+
+        :param printer:
+        """
         self.printer = printer
         self.db = CmDatabase()
         try:
@@ -56,7 +60,19 @@ class Cluster:
 
         
     def create(self, label, vms=[], n=None, cloud=None):
-        # create a document attached to cluster label
+        """
+        create a document attached to cluster label
+
+        TODO: describe
+
+
+        :param label:
+        :param vms:
+        :param n:
+        :param cloud:
+        :return:
+        """
+
         active_doc = self.document()
         if n:
             new_vms = self._boot_vm(
@@ -75,6 +91,15 @@ class Cluster:
         return self.document(document=active_doc)
 
     def add(self, label, vms=None, n=None, cloud=None):
+        """
+        TODO: describe
+
+        :param label:
+        :param vms:
+        :param n:
+        :param cloud:
+        :return:
+        """
         
         count = self.document['count']
         if n:
@@ -84,15 +109,44 @@ class Cluster:
                 )
 
     def remove(self, label, vms=None, n=None, cloud=None):
+        """
+        TODO: describe
+
+        :param label:
+        :param vms:
+        :param n:
+        :param cloud:
+        :return:
+        """
         raise NotImplementedError
 
     def terminate(self, label, kill=None):
+        """
+        TODO: describe
+
+        :param label:
+        :param kill:
+        :return:
+        """
         self._update_document()
 
     def info(self, verbose=None, label=None):
+        """
+        TODO: describe
+
+        :param verbose:
+        :param label:
+        :return:
+        """
         raise NotImplementedError
     
     def _boot_vm(self, **kwargs):
+        """
+        TODO: describe
+
+        :param kwargs:
+        :return:
+        """
 
         # TODO provide implementation for naming vms where a vm already exists
         # in the format LABEL_i
@@ -105,6 +159,11 @@ class Cluster:
 
     #@DatabaseUpdate
     def _create_document(self):
+        """
+        TODO: describe
+
+        :return:
+        """
         """
         Creates a document attached to a specific cluster
         """
@@ -122,11 +181,22 @@ class Cluster:
     #@DatabaseUpdate
     def _update_document(self):
         """
+        TODO: describe
+
+        :return:
+        """
+        """
         Modifies an existing cluster document.
         """
         pass
 
     def _load_document(self, label):
+        """
+        TODO: describe
+
+        :param label:
+        :return:
+        """
         """
         Finds a cluster document.
         """
@@ -134,6 +204,12 @@ class Cluster:
 
     #@DatabaseUpdate
     def _delete_document(self, label):
+        """
+        TODO: describe
+
+        :param label:
+        :return:
+        """
         """
         Deletes cluster document.
         """
