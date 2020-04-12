@@ -8,11 +8,13 @@ from cloudmesh.shell.command import command, map_parameters, PluginCommand
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.configuration.Config import Config
 
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.mongo.CmDatabase import CmDatabase
 from cloudmesh.common.Printer import Printer
 from cloudmesh.cluster.Cluster import Cluster
+from cloudmesh.common.variables import Variables
 
 class ClusterCommand(PluginCommand):
 
@@ -26,7 +28,7 @@ class ClusterCommand(PluginCommand):
             cluster create LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
             cluster (add|remove) LABEL (--vms=NAMES... | --n=N) [--cloud=CLOUD]
             cluster terminate LABEL [--kill]
-            cluster info LABEL [--verbose=V]
+            cluster info LABEL
 
           This command allows you to create and interact with an available
           cluster of machines.
@@ -35,14 +37,11 @@ class ClusterCommand(PluginCommand):
             NAMES  Machine names to be added to the cluster.
             LABEL  The label for the cluster.
             CLOUD  Cloud platform to initialize VMs.
-            N      Number of instances to request [default: 5]
             V      Verbosity level.
 
           Options:
-            --cloud    Specify cloud platform {AWS, Azure, Openstack}.
-            --n        Specify number of VMs to initialize.
-            --verbose  Returns information as per verbosity level.
-
+            --cloud=CLOUD  Specify cloud platform {AWS, Azure, Openstack}.
+            --n=N          Specify number of VMs to initialize.
 
           Description:
 
@@ -104,8 +103,11 @@ class ClusterCommand(PluginCommand):
             pass
 
         elif arguments.info:
-            v, label = arguments.verbose or arguments.v or None, arguments.LABEL or None
-            if label: print(f"Searching for {label}")
+            variables = Variables()
+            v = variables['verbose'] or '10'
+            label =arguments.LABEL or None
+            if label:
+                print(f"Searching for {label}")
             virtual_clusters, cloud_clusters = cmdb.collection(
                 "cluster-virtual"), cmdb.collection("cluster-cloud")
             output = {
