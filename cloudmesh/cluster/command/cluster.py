@@ -78,6 +78,8 @@ class ClusterCommand(PluginCommand):
                        'kill',
                        'verbose')
 
+        VERBOSE(arguments)
+
         config = Config()
         inv = Inventory()
         cmdb = CmDatabase()
