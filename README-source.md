@@ -49,8 +49,16 @@ Wipe cluster data and terminate all active deployments to the cluster. If --kill
 `cluster info [LABEL] [--verbose]`  
 Retrieves cluster data and machine data associated with cluster.  Verbosity level 1 provides high-level cluster information and list of machines.  Verbosity level 2 provides cluster information, machine information and status. Verbosity level 3 provides all available information.
 
-# Features
+## Features
 
 * Supports hybrid cloud clusters
 * Allows for inventory of instances and deployments
 * Abstraction in [`cloudmesh.cluster.Cluster`](./cloudmesh/cluster/Cluster.py) allows for added integrations
+
+## Manual
+
+{manual}
+
+## Tests
+
+{tests}
