@@ -75,8 +75,7 @@ class ClusterCommand(PluginCommand):
                        'vms',
                        'cloud',
                        'n',
-                       'kill',
-                       'verbose')
+                       'kill')
 
         VERBOSE(arguments)
 

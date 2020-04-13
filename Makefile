@@ -20,6 +20,12 @@ source:
 	pip install -e . -U
 	cms help
 
+readme:
+	cms timer off
+	python ../cloudmesh-common/bin/readme.py cloudmesh-$(package) $(package)
+	-git commit -m "Upadte Readme" README.md README-source.md
+	-git push
+
 requirements:
 	echo "cloudmesh-cmd5" > tmp.txt
 	echo "cloudmesh-sys" >> tmp.txt
