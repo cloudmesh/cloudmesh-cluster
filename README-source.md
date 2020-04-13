@@ -1,21 +1,9 @@
 Cloudmesh cluster
 =============
 
+{warning}
 
-> **Note:** The README.md page is outomatically generated, do not edit it.
-> To modify  change the content in
-> <https://github.com/cloudmesh/cloudmesh-cluster/blob/master/README-source.md>
-> Curley brackets must use two in README-source.md
-
-
-
-[![image](https://img.shields.io/pypi/v/cloudmesh-cluster.svg)](https://pypi.org/project/cloudmesh-cluster/)
-[![Python](https://img.shields.io/pypi/pyversions/cloudmesh-cluster.svg)](https://pypi.python.org/pypi/cloudmesh-cluster)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/cloudmesh/cloudmesh-cluster/blob/master/LICENSE)
-[![Format](https://img.shields.io/pypi/format/cloudmesh-cluster.svg)](https://pypi.python.org/pypi/cloudmesh-cluster)
-[![Status](https://img.shields.io/pypi/status/cloudmesh-cluster.svg)](https://pypi.python.org/pypi/cloudmesh-cluster)
-[![Travis](https://travis-ci.com/cloudmesh/cloudmesh-cluster.svg?branch=master)](https://travis-ci.com/cloudmesh/cloudmesh-cluster)
-
+{icons}
 
 see cloudmesh.cmd5
 
