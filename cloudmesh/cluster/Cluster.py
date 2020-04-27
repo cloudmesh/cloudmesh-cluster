@@ -1,7 +1,9 @@
 from cloudmesh.mongo.CmDatabase import CmDatabase
 from cloudmesh.mongo.DataBaseDecorator import DatabaseUpdate, DatabaseAlter, DatabaseImportAsJson
 from cloudmesh.compute.vm.Provider import Provider
-
+from cloudmesh.configuration.Config import Config
+from cloudmesh.common.DateTime import DateTime
+from cloudmesh.common.debug import VERBOSE
 class Cluster:
     """
     cluster test
@@ -28,6 +30,7 @@ class Cluster:
     """
     _default = {
         "name": "TBD",
+        "count": 0,
         "cm": {
             "kind": "cluster",
             "driver": None,
@@ -38,25 +41,33 @@ class Cluster:
             "status": "available",
             "label": "TBD",
             "group": "cloudmesh",
-            "collection": "cluster-native",
+            "collection": "cluster",
             "modified": "TBD",           
             "creation": 0
-        }
+        },
+        "vms": {}
     }
 
-    def __init__(self, printer=print):
+    def __init__(self, printer=print, name=None):
         """
 
         :param printer:
         """
         self.printer = printer
-        self.db = CmDatabase()
-        try:
-            self.db.connect()
-        except:
-            self.printer("Can't connect to database.")
+        self.config = Config()
+        self.provider = Provider(name=(name or self.config['cloudmesh.default.cloud']))
 
-        self.provider = Provider()
+        """
+        Database interactions
+        - Ensure collection:'cluster' is created
+        - 
+        """        
+        self.db = CmDatabase()
+        self.db.connect()
+        self.collection = self.db.collection("cluster")
+        
+
+
 
         
     def create(self, label, vms=[], n=None, cloud=None):
@@ -72,25 +83,28 @@ class Cluster:
         :param cloud:
         :return:
         """
+        documents = [doc for doc in self.collection.find({'name': label})]
+        self.document = documents[-1] if len(documents) > 0 else None
+        # get most recent document easily
+        if self.document:
+            raise ValueError(f"Cluster {label} already exists in database.")
+        else:
+            self.document = self._default
 
-        active_doc = self.document()
-        if n:
-            new_vms = self._boot_vm(
-                name=f"{label}_[0-{i}]",
-                cloud=cloud,
-                
-                )
-            vms.extend(new_vms)
-        
-        if vms:
-            self.load(label=label)
-            active_doc['count'] += len(vms)
-            active_doc['vms'].extend([{'name': vm} for vm in vms])
-            # TODO add more data features about vms
+        self.document.update({
+            'name': label
+        })
+        self.document['cm'].update({
+            'created': DateTime.now(),
+            'modified': DateTime.now(),
+            'updated': DateTime.now(),
+        })
+        self.add(label=label,vms=vms,n=n,cloud=cloud)
+        self.collection.insert_one(self.document)
+        return self.document
+    
 
-        return self.document(document=active_doc)
-
-    def add(self, label, vms=None, n=None, cloud=None):
+    def add(self, label, vms=[], n=None, cloud=None):
         """
         TODO: describe
 
@@ -100,13 +114,19 @@ class Cluster:
         :param cloud:
         :return:
         """
-        
-        count = self.document['count']
-        if n:
-            self._boot_vm(
-                name=f"{label}_[{count}-{count+i}]",
-
-                )
+        nextVmID = self.document['count']
+        for i, vm in enumerate(vms):
+            vm_name = f"{label}_{nextVmID}"
+            self.document['vms']
+            self.provider.create(
+                name=f"{label}_{nextVmID}",
+                cloud=cloud
+            )
+        self.document.update({
+            'count': n or len(vms),
+            'last_created_vm_num': -1,
+            'vms': {vm_name:{} for vm_name in vms or []}
+        })
 
     def remove(self, label, vms=None, n=None, cloud=None):
         """
@@ -118,7 +138,7 @@ class Cluster:
         :param cloud:
         :return:
         """
-        raise NotImplementedError
+        pass
 
     def terminate(self, label, kill=None):
         """
@@ -128,7 +148,9 @@ class Cluster:
         :param kill:
         :return:
         """
-        self._update_document()
+        self.collection.delete_many({
+            'name': label
+        })
 
     def info(self, verbose=None, label=None):
         """
@@ -140,77 +162,3 @@ class Cluster:
         """
         raise NotImplementedError
     
-    def _boot_vm(self, **kwargs):
-        """
-        TODO: describe
-
-        :param kwargs:
-        :return:
-        """
-
-        # TODO provide implementation for naming vms where a vm already exists
-        # in the format LABEL_i
-
-        # ex: if cms cluster create --n=3 TEST is run twice, it should not
-        # produce two sets of vms test_0, test_1, test_2, where the second set
-        # fail to create
-
-        self.provider.create(**kwargs)
-
-    #@DatabaseUpdate
-    def _create_document(self):
-        """
-        TODO: describe
-
-        :return:
-        """
-        """
-        Creates a document attached to a specific cluster
-        """
-        doc = {label:payload}
-        """
-        TODO
-        
-        What are the headers needed for DatabaseUpdate to attach to the
-        collection needed?
-        
-        """
-        headers = {}
-        return doc
-
-    #@DatabaseUpdate
-    def _update_document(self):
-        """
-        TODO: describe
-
-        :return:
-        """
-        """
-        Modifies an existing cluster document.
-        """
-        pass
-
-    def _load_document(self, label):
-        """
-        TODO: describe
-
-        :param label:
-        :return:
-        """
-        """
-        Finds a cluster document.
-        """
-        pass
-
-    #@DatabaseUpdate
-    def _delete_document(self, label):
-        """
-        TODO: describe
-
-        :param label:
-        :return:
-        """
-        """
-        Deletes cluster document.
-        """
-        pass
