@@ -66,9 +66,6 @@ class Cluster:
         self.db.connect()
         self.collection = self.db.collection("cluster")
         
-
-
-
         
     def create(self, label, vms=[], n=None, cloud=None):
         """
@@ -103,6 +100,12 @@ class Cluster:
         self.collection.insert_one(self.document)
         return self.document
     
+    def update(self, item):
+        self.document.update(item)
+        self.document['cm'].update({
+            'updated': DateTime.now(),
+        })
+        self.document['count'] = len(self.document['vms'].keys)
 
     def add(self, label, vms=[], n=None, cloud=None):
         """
@@ -114,19 +117,19 @@ class Cluster:
         :param cloud:
         :return:
         """
-        nextVmID = self.document['count']
-        for i, vm in enumerate(vms):
-            vm_name = f"{label}_{nextVmID}"
-            self.document['vms']
-            self.provider.create(
-                name=f"{label}_{nextVmID}",
-                cloud=cloud
-            )
-        self.document.update({
-            'count': n or len(vms),
-            'last_created_vm_num': -1,
-            'vms': {vm_name:{} for vm_name in vms or []}
-        })
+        self.update({'vms': 
+                        {f"{label}_{self.document['count']+i}": self.provider.create(
+                                                                    name=vm_name,
+                                                                    cloud=cloud
+                                                                )
+                        } for i in range(n)})
+
+        self.update({'vms':
+                        {vm_name: self.provider.status(
+                                        name=vm_name,
+                                        cloud=cloud
+                                    )
+                        } for vm_name in vms})
 
     def remove(self, label, vms=None, n=None, cloud=None):
         """
@@ -138,7 +141,11 @@ class Cluster:
         :param cloud:
         :return:
         """
-        pass
+        self.update({'vms':{k:v for k,v in self.document['vms'] if k not in vms}})
+        vms = vms.extend([self.document['vms'].keys().pop() for i in range(n)])
+        [self.provider.stop(name=vm_name, cloud=cloud) for vm_name in vms]
+        self.update({})
+        
 
     def terminate(self, label, kill=None):
         """
@@ -148,6 +155,10 @@ class Cluster:
         :param kill:
         :return:
         """
+        if kill:
+            for _, vm in self.document['vms'].items():
+                p = Provider(name=vm['cm']['driver'])
+                p.stop(name=vm['name'])
         self.collection.delete_many({
             'name': label
         })
@@ -160,5 +171,28 @@ class Cluster:
         :param label:
         :return:
         """
-        raise NotImplementedError
+        def _return_doc_verbosity(doc, verbose=3):
+            if verbose==0:
+                if type(doc) is dict or type(doc) is list:
+                    return "trimmed"
+
+            if type(doc) is list:
+                return [
+                    _return_doc_verbosity(v, verbose=verbose-1) \
+                        for v in doc
+                ]
+
+            if type(doc) is dict:    
+                return {
+                    k:_return_doc_verbosity(v, verbose=verbose-1) \
+                        for k,v in doc.items()
+                }
+
+            # base case - all non-nested values
+            return doc
+
+        return _return_doc_verbosity(self.get_cursor(name=label), verbose=verbose)
     
+    def get_cursor(self, **kwargs):
+        self.document = self.collection.find(kwargs)
+        return self.document
