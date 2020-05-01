@@ -70,7 +70,6 @@ class ClusterCommand(PluginCommand):
                 Verbosity level 3 provides all available information.
 
         """
-        print(arguments)
         map_parameters(arguments,
                        'vms',
                        'cloud',

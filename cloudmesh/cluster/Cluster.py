@@ -193,6 +193,10 @@ class Cluster:
 
         return _return_doc_verbosity(self.get_cursor(name=label), verbose=verbose)
     
+    def deploy(self, script):
+        for vm_name, vm in self.document['vms']:
+            vm.ssh(script)
+
     def get_cursor(self, **kwargs):
         self.document = self.collection.find(kwargs)
         return self.document
