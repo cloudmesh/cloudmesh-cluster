@@ -70,7 +70,6 @@ class ClusterCommand(PluginCommand):
                 Verbosity level 3 provides all available information.
 
         """
-        print(arguments)
         map_parameters(arguments,
                        'vms',
                        'cloud',
@@ -80,14 +79,14 @@ class ClusterCommand(PluginCommand):
         VERBOSE(arguments)
 
         config = Config()
-        inv = Inventory()
-        cmdb = CmDatabase()
-        cluster = Cluster(print=Printer.write)
+        #inv = Inventory()
+        #cmdb = CmDatabase()
+        cluster = Cluster(printer=Printer.write, name=arguments.cloud)
 
         if arguments.create:
             kwargs = {
                 'label': arguments.LABEL,
-                'vms': Parameter.expand(arguments.vms) or None,
+                'vms': Parameter.expand(arguments.vms) or [],
                 'cloud': arguments.cloud or None,
                 'n': int(arguments.n) or None
             }
@@ -95,18 +94,34 @@ class ClusterCommand(PluginCommand):
             print(cluster.document)
 
         elif arguments.add:
-            pass
+            kwargs = {
+                'label': arguments.LABEL,
+                'vms': Parameter.expand(arguments.vms) or [],
+                'cloud': arguments.cloud or None,
+                'n': int(arguments.n) or None
+            }
+            cluster.add(**kwargs)
 
         elif arguments.remove:
-            pass
+            kwargs = {
+                'label': arguments.LABEL,
+                'vms': Parameter.expand(arguments.vms) or [],
+                'cloud': arguments.cloud or None,
+                'n': int(arguments.n) or None
+            }
+            cluster.remove(**kwargs)
 
         elif arguments.terminate:
-            pass
+            kwargs = {
+                'label': arguments.LABEL,
+                'kill': arguments.kill or None
+            }
+            cluster.terminate(**kwargs)
 
         elif arguments.info:
             variables = Variables()
             v = variables['verbose'] or '10'
-            label =arguments.LABEL or None
+            label = arguments.LABEL or None
             if label:
                 print(f"Searching for {label}")
             virtual_clusters, cloud_clusters = cmdb.collection(

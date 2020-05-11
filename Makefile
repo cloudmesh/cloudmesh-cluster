@@ -72,7 +72,7 @@ clean:
 	rm -rf *.eggs
 	rm -rf docs/build
 	rm -rf build
-	find . -type d -name __pycache__ -delete
+	find . -type d -name __pycache__ -exec "rm -rf" | 1
 	find . -name '*.pyc' -delete
 	rm -rf .tox
 	rm -f *.whl
